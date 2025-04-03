@@ -5,7 +5,6 @@ Description=Run motd-joke once per day
 OnCalendar=daily
 OnActiveSec=0
 Persistent=true
-Unit=motd-joke-runner
 
 [Install]
 WantedBy=timers.target
