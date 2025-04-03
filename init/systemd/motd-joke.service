@@ -1,0 +1,14 @@
+[Unit]
+Description=fetch top day joke from r/Jokes
+After=network.target
+Wants=network.target
+
+[Service]
+ExecStart=/usr/local/bin/motd-joke
+Restart=on-failure
+RestartSec=30s
+
+# Install using motd-joke.timer instead
+
+#[Install]
+#WantedBy=multi-user.target

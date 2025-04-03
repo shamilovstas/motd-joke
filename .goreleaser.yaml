@@ -1,0 +1,118 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+
+# The lines below are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/need to use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    main: ./cmd/main.go
+
+archives:
+  - formats: tar.gz
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+nfpms:
+  # note that this is an array of nfpm configs
+  - id: motd-joke
+    package_name: motd-joke
+    file_name_template: "{{ .ConventionalFileName }}"
+    maintainer: Stanislav Shamilov <shamilovstas@protonmail.com>
+    description: |-
+      motd-joke installer package.
+      Set top of the day joke from r/Jokes as MOTD
+    license: Apache 2.0
+
+    formats:
+      - apk
+      - deb
+      - rpm
+      - archlinux
+
+    # Umask to be used on files without explicit mode set. (overridable)
+    #
+    # Default: 0o002 (will remove world-writable permissions).
+    umask: 0o002
+
+    dependencies:
+      - systemd
+
+    bindir: /usr/local/bin
+
+    libdirs:
+      header: /usr/include/motd-joke
+      cshared: /usr/lib/motd-joke
+      carchive: /usr/lib/motd-joke
+
+    # Section.
+    section: main
+
+    # Contents to add to the package.
+    # GoReleaser will automatically add the binaries.
+    contents:
+      # Basic file that applies to all packagers
+      - src: init/systemd/motd-joke.service
+        dst: /etc/systemd/system/motd-joke.service
+
+      - src: init/systemd/motd-joke.timer
+        dst: /etc/systemd/system/motd-joke.timer
+
+#    scripts:
+#      preinstall: "scripts/preinstall.sh"
+#      postinstall: "scripts/postinstall.sh"
+#      preremove: "scripts/preremove.sh"
+#      postremove: "scripts/postremove.sh"
+
+    mtime: "{{ .CommitDate }}"
+
+    # Custom configuration applied only to the RPM packager.
+#    rpm:
+
+#      signature:
+#        key_file: "{{ .Env.GPG_KEY_PATH }}"
+
+    # Custom configuration applied only to the Deb packager.
+#    deb:
+
+#      signature:
+#
+#        key_file: "{{ .Env.GPG_KEY_PATH }}"
+#
+#        type: origin
+
+#    apk:
+
+#      signature:
+#        key_file: "{{ .Env.GPG_KEY_PATH }}"
+#        key_name: origin
+
+#    archlinux:
+#      pkgbase: foo
