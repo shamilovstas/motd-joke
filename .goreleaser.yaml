@@ -85,6 +85,10 @@ nfpms:
       - src: init/systemd/motd-joke.timer
         dst: /etc/systemd/system/motd-joke.timer
 
+      - src: templates/debian-motd-joke.tpl
+        dst: /usr/share/motd-joke/debian-motd-joke.tpl
+        packager: deb
+
 #    scripts:
 #      preinstall: "scripts/preinstall.sh"
 #      postinstall: "scripts/postinstall.sh"
