@@ -25,6 +25,9 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
 
+furies:
+  - account: shamilovstas
+
 nfpms:
   - id: motd-joke
     package_name: motd-joke
