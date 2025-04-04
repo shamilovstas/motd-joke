@@ -3,7 +3,6 @@ package motd
 import (
 	"errors"
 	"fmt"
-	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -14,11 +13,11 @@ const motdFragmentFilename = "99-joke-of-the-day"
 
 func CreateMotdfile(message string) error {
 	err := tryCreateGenericMotdFragment(message)
-	if errors.Is(err, fs.ErrNotExist) {
+	if errors.Is(err, os.ErrNotExist) {
 		err = tryCreateDebianMotdFragment(message)
 
-		if errors.Is(err, fs.ErrNotExist) {
-			slog.Error("debian like fragment failed", slog.Any("error", err))
+		if errors.Is(err, os.ErrNotExist) {
+			slog.Error("debian-like fragment failed", slog.Any("error", err))
 			err = createDefaultMotd(message)
 		}
 	}
@@ -31,10 +30,9 @@ func tryCreateGenericMotdFragment(message string) error {
 
 	if err == nil {
 		if !fileInfo.IsDir() {
-			return fmt.Errorf("%s not a dir: %w", dirPath, err)
+			return fmt.Errorf("%s is not a dir: %w", dirPath, err)
 		}
-		filename := fmt.Sprintf("%s.motd", motdFragmentFilename)
-		path := filepath.Join(dirPath, filename)
+		path := filepath.Join(dirPath, motdFragmentFilename)
 		return os.WriteFile(path, []byte(message), 0644)
 	} else {
 		slog.Error("cannot stat /etc/motd.d", slog.Any("error", err))
